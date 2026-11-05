@@ -1,0 +1,377 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EliteHostX | Premium Game Hosting</title>
+
+    <meta name="description" content="EliteHostX - Premium Minecraft Server Hosting">
+    <meta name="theme-color" content="#080d17">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">
+                <span>⚡</span>
+            </div>
+
+            <div>
+                <h2>EliteHost<span>X</span></h2>
+                <p class="subtitle">PREMIUM GAME HOSTING</p>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <p class="menu-title">MAIN MENU</p>
+
+            <nav class="menu">
+                <a class="active" href="#">
+                    <span>▦</span> Dashboard
+                </a>
+
+                <a href="#servers">
+                    <span>▣</span> My Servers
+                </a>
+
+                <a href="#servers" id="sidebarCreate">
+                    <span>＋</span> Create Server
+                </a>
+            </nav>
+        </div>
+
+        <div class="menu-section">
+            <p class="menu-title">MANAGEMENT</p>
+
+            <nav class="menu">
+                <a href="#servers">
+                    <span>▤</span> File Manager
+                </a>
+
+                <a href="#servers">
+                    <span>⌘</span> Console
+                </a>
+
+                <a href="#settings">
+                    <span>⚙</span> Settings
+                </a>
+            </nav>
+        </div>
+
+        <div class="sidebar-bottom">
+
+            <div class="support-box">
+                <span class="support-icon">✦</span>
+                <strong>Need help?</strong>
+                <p>Our support team is here for you.</p>
+            </div>
+
+            <div class="version">
+                ELITEHOSTX PANEL · V1.0.0
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="main-content">
+
+        <!-- HEADER -->
+
+        <header class="topbar">
+
+            <div>
+                <h1>Dashboard</h1>
+                <p>Welcome back to EliteHostX.</p>
+            </div>
+
+            <div class="topbar-right">
+
+                <div class="system-status">
+                    <span class="status-dot"></span>
+                    SYSTEM ONLINE
+                </div>
+
+                <div class="profile">
+                    E
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- HERO -->
+
+        <section class="welcome">
+
+            <div class="welcome-content">
+
+                <span class="tag">⚡ PREMIUM MINECRAFT HOSTING</span>
+
+                <h2>
+                    Take control of<br>
+                    your <span>game world.</span>
+                </h2>
+
+                <p>
+                    Powerful servers. Unlimited possibilities.
+                    Everything you need in one place.
+                </p>
+
+                <button class="primary-button" id="heroCreate">
+                    + CREATE YOUR SERVER
+                </button>
+
+            </div>
+
+            <div class="hero-decoration">
+                <div class="hero-circle">
+                    <span>⚡</span>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- STATISTICS -->
+
+        <section class="statistics-section">
+
+            <div class="section-heading">
+                <h2>Overview</h2>
+                <p>Your hosting statistics</p>
+            </div>
+
+            <div class="stats">
+
+                <div class="stat-card">
+                    <div class="stat-icon">▣</div>
+
+                    <span>Total Servers</span>
+
+                    <h2 id="totalServers">0</h2>
+
+                    <small>Registered servers</small>
+                </div>
+
+
+                <div class="stat-card">
+                    <div class="stat-icon">◉</div>
+
+                    <span>Active Servers</span>
+
+                    <h2 id="activeServers">0</h2>
+
+                    <small>Currently running</small>
+                </div>
+
+
+                <div class="stat-card">
+                    <div class="stat-icon">▤</div>
+
+                    <span>Allocated RAM</span>
+
+                    <h2 id="totalRam">0 GB</h2>
+
+                    <small>Total configured memory</small>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- SERVERS -->
+
+        <section class="servers-section" id="servers">
+
+            <div class="section-header">
+
+                <div>
+                    <h2>My Servers</h2>
+                    <p>Manage your Minecraft infrastructure.</p>
+                </div>
+
+                <button class="primary-button" id="createButton">
+                    + CREATE SERVER
+                </button>
+
+            </div>
+
+
+            <div class="empty" id="serverContainer">
+
+                <div class="empty-icon">
+                    ▣
+                </div>
+
+                <h2>No servers yet</h2>
+
+                <p>
+                    You haven't created any Minecraft servers.
+                    Start by creating your first one.
+                </p>
+
+                <button class="primary-button" id="emptyCreate">
+                    CREATE MY FIRST SERVER
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- FOOTER -->
+
+        <footer>
+            <div class="footer-brand">
+                ⚡ EliteHostX
+            </div>
+
+            <p>
+                © 2026 EliteHostX. All rights reserved.
+            </p>
+
+            <p>
+                POWERED BY ELITEHOSTX
+            </p>
+        </footer>
+
+    </main>
+
+
+    <!-- CREATE SERVER MODAL -->
+
+    <div id="serverModal" class="modal hidden">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <div>
+                    <span class="tag">ELITEHOSTX PANEL</span>
+
+                    <h2>Create Minecraft Server</h2>
+
+                    <p>Configure your new server.</p>
+                </div>
+
+                <button id="closeModal" class="close-button">
+                    ✕
+                </button>
+
+            </div>
+
+
+            <form id="serverForm">
+
+                <label for="serverName">
+                    Server Name
+                </label>
+
+                <input
+                    id="serverName"
+                    type="text"
+                    placeholder="My Minecraft Server"
+                    maxlength="40"
+                    required
+                >
+
+
+                <label for="serverSoftware">
+                    Server Software
+                </label>
+
+                <select id="serverSoftware">
+
+                    <option value="Paper">Paper</option>
+
+                    <option value="Purpur">Purpur</option>
+
+                    <option value="Vanilla">Vanilla</option>
+
+                    <option value="Spigot">Spigot</option>
+
+                </select>
+
+
+                <label for="serverVersion">
+                    Minecraft Version
+                </label>
+
+                <select id="serverVersion">
+
+                    <option value="1.21.11">1.21.11</option>
+
+                    <option value="1.21.10">1.21.10</option>
+
+                    <option value="1.21.8">1.21.8</option>
+
+                </select>
+
+
+                <label for="serverRam">
+                    RAM Allocation
+                </label>
+
+                <select id="serverRam">
+
+                    <option value="2">2 GB</option>
+
+                    <option value="4">4 GB</option>
+
+                    <option value="6">6 GB</option>
+
+                    <option value="8">8 GB</option>
+
+                </select>
+
+
+                <button
+                    type="submit"
+                    class="create-submit"
+                >
+                    ⚡ CREATE SERVER
+                </button>
+
+            </form>
+
+
+            <div class="modal-note">
+
+                <span>ⓘ</span>
+
+                Demo mode: server configurations are saved
+                in this browser. Real Minecraft instances
+                require a server engine.
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- JAVASCRIPT -->
+
+    <script src="app.js"></script>
+
+</body>
+</html>
