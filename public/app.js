@@ -1,64 +1,161 @@
 
 const authScreen = document.getElementById("authScreen");
 const dashboard = document.getElementById("appDashboard");
-
 const modal = document.getElementById("serverModal");
 const serverForm = document.getElementById("serverForm");
 const serverContainer = document.getElementById("serverContainer");
 
-const createButtons = [
-    document.getElementById("createButton"),
-    document.getElementById("emptyCreate"),
-    document.getElementById("heroCreate"),
-    document.getElementById("sidebarCreate")
-];
-
-/*
- * AUTHENTICATION
- *
- * Esta versión solo prepara la interfaz.
- * Google y Discord se conectarán mediante OAuth
- * desde el backend en el siguiente paso.
- */
-
-function showDashboard(user = null) {
-    authScreen.classList.add("hidden");
-    dashboard.classList.remove("hidden");
-
-    if (user) {
-        const avatar = document.getElementById("profileAvatar");
-
-        if (avatar && user.name) {
-            avatar.textContent = user.name.charAt(0).toUpperCase();
-        }
-    }
-}
+let currentUser = null;
 
 function showLogin() {
+    currentUser = null;
+
     dashboard.classList.add("hidden");
     authScreen.classList.remove("hidden");
 }
 
-document.getElementById("googleLogin").addEventListener("click", () => {
-    alert("Google OAuth todavía no está configurado.");
-});
+function showDashboard(user) {
+    currentUser = user;
 
-document.getElementById("discordLogin").addEventListener("click", () => {
-    alert("Discord OAuth todavía no está configurado.");
-});
+    authScreen.classList.add("hidden");
+    dashboard.classList.remove("hidden");
 
-document.getElementById("logoutButton").addEventListener("click", () => {
-    showLogin();
-});
+    const avatar = document.getElementById("profileAvatar");
+
+    if (avatar) {
+        avatar.textContent =
+            user.name?.charAt(0).toUpperCase() || "U";
+        avatar.title = user.name || "User";
+    }
+
+    renderServers();
+}
+
+function getStorageKey() {
+    if (!currentUser) {
+        return null;
+    }
+
+    return `elitehostx_servers_${currentUser.id}`;
+}
 
 
 /*
- * SERVER MODAL
- */
+|--------------------------------------------------------------------------
+| AUTHENTICATION
+|--------------------------------------------------------------------------
+*/
+
+document.getElementById("googleLogin").addEventListener("click", () => {
+    window.location.assign("/auth/google");
+});
+
+document.getElementById("discordLogin").addEventListener("click", () => {
+    window.location.assign("/auth/discord");
+});
+
+document.getElementById("logoutButton").addEventListener("click", async () => {
+    try {
+        const response = await fetch("/api/logout", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({})
+        });
+
+        if (!response.ok) {
+            throw new Error("No se pudo cerrar la sesión.");
+        }
+
+        closeModal();
+        showLogin();
+
+    } catch (error) {
+        console.error("Logout error:", error);
+        alert("No se pudo cerrar la sesión. Inténtalo de nuevo.");
+    }
+});
+
+
+async function checkSession() {
+    try {
+        const response = await fetch("/api/me", {
+            method: "GET",
+            credentials: "same-origin",
+            headers: {
+                "Accept": "application/json"
+            },
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            showLogin();
+            return;
+        }
+
+        const data = await response.json();
+
+        if (!data.authenticated || !data.user) {
+            showLogin();
+            return;
+        }
+
+        showDashboard(data.user);
+
+    } catch (error) {
+        console.error("Session check error:", error);
+        showLogin();
+    }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| AUTHENTICATION MESSAGES
+|--------------------------------------------------------------------------
+*/
+
+function checkAuthMessages() {
+    const params = new URLSearchParams(window.location.search);
+    const authStatus = params.get("auth");
+
+    if (authStatus === "failed") {
+        alert("No se pudo iniciar sesión. Inténtalo nuevamente.");
+    }
+
+    if (authStatus === "unavailable") {
+        alert(
+            "El inicio de sesión todavía no está configurado. " +
+            "Estamos preparando EliteHostX."
+        );
+    }
+
+    if (authStatus) {
+        window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname
+        );
+    }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| SERVER MODAL
+|--------------------------------------------------------------------------
+*/
 
 function openModal(event) {
     if (event) {
         event.preventDefault();
+    }
+
+    if (!currentUser) {
+        showLogin();
+        return;
     }
 
     modal.classList.remove("hidden");
@@ -67,6 +164,13 @@ function openModal(event) {
 function closeModal() {
     modal.classList.add("hidden");
 }
+
+const createButtons = [
+    document.getElementById("createButton"),
+    document.getElementById("emptyCreate"),
+    document.getElementById("heroCreate"),
+    document.getElementById("sidebarCreate")
+];
 
 createButtons.forEach(button => {
     if (button) {
@@ -83,16 +187,32 @@ modal.addEventListener("click", event => {
     }
 });
 
+document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+        closeModal();
+    }
+});
+
 
 /*
- * SERVER CONFIGURATIONS
- */
+|--------------------------------------------------------------------------
+| LOCAL DEMO SERVER CONFIGURATIONS
+|--------------------------------------------------------------------------
+|
+| Estas configuraciones todavía no crean servidores Minecraft reales.
+| Se guardan localmente y se separan por ID de usuario.
+|
+*/
 
 function getServers() {
+    const key = getStorageKey();
+
+    if (!key) {
+        return [];
+    }
+
     try {
-        return JSON.parse(
-            localStorage.getItem("elitehostx_servers") || "[]"
-        );
+        return JSON.parse(localStorage.getItem(key) || "[]");
     } catch (error) {
         console.error("Error reading servers:", error);
         return [];
@@ -100,14 +220,29 @@ function getServers() {
 }
 
 function saveServers(servers) {
-    localStorage.setItem(
-        "elitehostx_servers",
-        JSON.stringify(servers)
-    );
+    const key = getStorageKey();
+
+    if (!key) {
+        return;
+    }
+
+    localStorage.setItem(key, JSON.stringify(servers));
 }
+
+
+/*
+|--------------------------------------------------------------------------
+| CREATE SERVER CONFIGURATION
+|--------------------------------------------------------------------------
+*/
 
 serverForm.addEventListener("submit", event => {
     event.preventDefault();
+
+    if (!currentUser) {
+        showLogin();
+        return;
+    }
 
     const name = document.getElementById("serverName").value.trim();
     const software = document.getElementById("serverSoftware").value;
@@ -116,6 +251,11 @@ serverForm.addEventListener("submit", event => {
 
     if (!name) {
         alert("Please enter a server name.");
+        return;
+    }
+
+    if (!Number.isFinite(ram) || ram <= 0) {
+        alert("Invalid RAM allocation.");
         return;
     }
 
@@ -131,21 +271,25 @@ serverForm.addEventListener("submit", event => {
     const servers = getServers();
 
     servers.push(server);
-
     saveServers(servers);
 
     renderServers();
     closeModal();
-
     serverForm.reset();
 });
 
 
 /*
- * RENDER SERVERS AND STATISTICS
- */
+|--------------------------------------------------------------------------
+| RENDER SERVERS
+|--------------------------------------------------------------------------
+*/
 
 function renderServers() {
+    if (!currentUser) {
+        return;
+    }
+
     const servers = getServers();
 
     serverContainer.innerHTML = "";
@@ -153,6 +297,7 @@ function renderServers() {
     document.getElementById("totalServers").textContent =
         servers.length;
 
+    // Todavía no hay instancias reales conectadas.
     document.getElementById("activeServers").textContent = "0";
 
     const totalRam = servers.reduce(
@@ -161,7 +306,7 @@ function renderServers() {
     );
 
     document.getElementById("totalRam").textContent =
-        totalRam + " GB";
+        `${totalRam} GB`;
 
     if (servers.length === 0) {
         serverContainer.innerHTML = `
@@ -208,12 +353,16 @@ function renderServers() {
 
 
 /*
- * API CONNECTION
- */
+|--------------------------------------------------------------------------
+| API STATUS
+|--------------------------------------------------------------------------
+*/
 
 async function loadStatus() {
     try {
-        const response = await fetch("/api/status");
+        const response = await fetch("/api/status", {
+            cache: "no-store"
+        });
 
         if (!response.ok) {
             throw new Error("API returned " + response.status);
@@ -231,9 +380,12 @@ async function loadStatus() {
 
 
 /*
- * INITIALIZATION
- */
+|--------------------------------------------------------------------------
+| INITIALIZATION
+|--------------------------------------------------------------------------
+*/
 
+checkAuthMessages();
 showLogin();
-renderServers();
 loadStatus();
+checkSession();
