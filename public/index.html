@@ -1,10 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>EliteHostX | Premium Game Hosting</title>
     <meta name="description" content="EliteHostX - Premium Minecraft Server Hosting">
     <meta name="theme-color" content="#080d17">
@@ -14,11 +12,103 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="style.css">
+
+    <style>
+        .auth-tabs {
+            display: flex;
+            gap: 8px;
+            margin: 22px 0 18px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 10px;
+            background: rgba(255,255,255,.04);
+            color: inherit;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .auth-tab.active {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: #fff;
+        }
+
+        .auth-form {
+            display: grid;
+            gap: 10px;
+            text-align: left;
+        }
+
+        .auth-form label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #cbd5e1;
+        }
+
+        .auth-form input {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid rgba(255,255,255,.16);
+            border-radius: 9px;
+            background: #0d1728;
+            color: #fff;
+            font: inherit;
+            outline: none;
+        }
+
+        .auth-form input:focus {
+            border-color: #60a5fa;
+        }
+
+        .auth-submit {
+            width: 100%;
+            padding: 14px;
+            border: 0;
+            border-radius: 9px;
+            background: #2563eb;
+            color: #fff;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .auth-submit:disabled {
+            opacity: .6;
+            cursor: wait;
+        }
+
+        .auth-message {
+            margin: 12px 0;
+            padding: 11px 13px;
+            border-radius: 9px;
+            background: rgba(220,38,38,.14);
+            border: 1px solid rgba(248,113,113,.35);
+            color: #fecaca;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .auth-hint {
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.5;
+            margin: 4px 0;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
 </head>
 
 <body>
 
-    <!-- AUTHENTICATION SCREEN -->
     <section id="authScreen" class="auth-screen">
         <div class="auth-card">
 
@@ -30,22 +120,100 @@
 
             <div class="auth-heading">
                 <h2>Welcome to EliteHostX</h2>
-                <p>Sign in to manage your Minecraft servers.</p>
+                <p>Sign in or create an account to manage your Minecraft servers.</p>
             </div>
 
-            <div class="auth-buttons">
-
-                <button type="button" id="googleLogin" class="oauth-button google-button">
-                    <span class="oauth-icon google-icon">G</span>
-                    Continue with Google
+            <div class="auth-tabs">
+                <button type="button" id="loginTab" class="auth-tab active">
+                    SIGN IN
                 </button>
 
-                <button type="button" id="discordLogin" class="oauth-button discord-button">
-                    <span class="oauth-icon">◈</span>
-                    Continue with Discord
+                <button type="button" id="registerTab" class="auth-tab">
+                    CREATE ACCOUNT
                 </button>
-
             </div>
+
+            <div id="authMessage" class="auth-message hidden" role="alert"></div>
+
+            <form id="loginForm" class="auth-form">
+
+                <label for="loginEmail">Email</label>
+                <input
+                    id="loginEmail"
+                    type="email"
+                    autocomplete="email"
+                    maxlength="320"
+                    placeholder="you@example.com"
+                    required
+                >
+
+                <label for="loginPassword">Password</label>
+                <input
+                    id="loginPassword"
+                    type="password"
+                    autocomplete="current-password"
+                    maxlength="72"
+                    required
+                >
+
+                <button id="loginSubmit" type="submit" class="auth-submit">
+                    SIGN IN
+                </button>
+
+            </form>
+
+            <form id="registerForm" class="auth-form hidden">
+
+                <label for="registerName">Display name</label>
+                <input
+                    id="registerName"
+                    type="text"
+                    autocomplete="name"
+                    minlength="2"
+                    maxlength="60"
+                    placeholder="Your name"
+                    required
+                >
+
+                <label for="registerEmail">Email</label>
+                <input
+                    id="registerEmail"
+                    type="email"
+                    autocomplete="email"
+                    maxlength="320"
+                    placeholder="you@example.com"
+                    required
+                >
+
+                <label for="registerPassword">Password</label>
+                <input
+                    id="registerPassword"
+                    type="password"
+                    autocomplete="new-password"
+                    minlength="12"
+                    maxlength="72"
+                    required
+                >
+
+                <label for="registerPasswordConfirm">Confirm password</label>
+                <input
+                    id="registerPasswordConfirm"
+                    type="password"
+                    autocomplete="new-password"
+                    minlength="12"
+                    maxlength="72"
+                    required
+                >
+
+                <p class="auth-hint">
+                    Use at least 12 characters. Do not reuse a password from another site.
+                </p>
+
+                <button id="registerSubmit" type="submit" class="auth-submit">
+                    CREATE ACCOUNT
+                </button>
+
+            </form>
 
             <div class="auth-divider">
                 <span>SECURE ACCOUNT ACCESS</span>
@@ -65,8 +233,6 @@
         </div>
     </section>
 
-
-    <!-- DASHBOARD -->
     <div id="appDashboard" class="hidden">
 
         <aside class="sidebar">
@@ -127,17 +293,15 @@
                 </div>
 
                 <div class="version">
-                    ELITEHOSTX PANEL · V1.0.0
+                    ELITEHOSTX PANEL · V1.2.0
                 </div>
 
             </div>
 
         </aside>
 
-
         <main class="main-content">
 
-            <!-- HEADER -->
             <header class="topbar">
 
                 <div>
@@ -152,9 +316,17 @@
                         SYSTEM ONLINE
                     </div>
 
-                    <div class="profile" id="profileAvatar">E</div>
+                    <div class="profile" id="profileAvatar">
+                        E
+                    </div>
 
-                    <button type="button" id="logoutButton" class="logout-button">
+                    <span id="accountName" class="account-name"></span>
+
+                    <button
+                        type="button"
+                        id="logoutButton"
+                        class="logout-button"
+                    >
                         LOG OUT
                     </button>
 
@@ -162,13 +334,13 @@
 
             </header>
 
-
-            <!-- HERO -->
             <section class="welcome">
 
                 <div class="welcome-content">
 
-                    <span class="tag">⚡ PREMIUM MINECRAFT HOSTING</span>
+                    <span class="tag">
+                        ⚡ PREMIUM MINECRAFT HOSTING
+                    </span>
 
                     <h2>
                         Take control of<br>
@@ -194,8 +366,6 @@
 
             </section>
 
-
-            <!-- STATISTICS -->
             <section class="statistics-section">
 
                 <div class="section-heading">
@@ -230,8 +400,6 @@
 
             </section>
 
-
-            <!-- SERVERS -->
             <section class="servers-section" id="servers">
 
                 <div class="section-header">
@@ -266,13 +434,8 @@
 
             </section>
 
-
-            <!-- FOOTER -->
             <footer>
-                <div class="footer-brand">
-                    ⚡ EliteHostX
-                </div>
-
+                <div class="footer-brand">⚡ EliteHostX</div>
                 <p>© 2026 EliteHostX. All rights reserved.</p>
                 <p>POWERED BY ELITEHOSTX</p>
             </footer>
@@ -281,8 +444,6 @@
 
     </div>
 
-
-    <!-- CREATE SERVER MODAL -->
     <div id="serverModal" class="modal hidden">
 
         <div class="modal-content">
@@ -295,7 +456,11 @@
                     <p>Configure your new server.</p>
                 </div>
 
-                <button type="button" id="closeModal" class="close-button">
+                <button
+                    type="button"
+                    id="closeModal"
+                    class="close-button"
+                >
                     ✕
                 </button>
 
@@ -349,7 +514,6 @@
         </div>
 
     </div>
-
 
     <script src="app.js"></script>
 

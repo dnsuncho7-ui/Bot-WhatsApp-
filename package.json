@@ -1,7 +1,6 @@
-
 {
-  "name": "titanterra-host",
-  "version": "1.1.0",
+  "name": "elitehostx",
+  "version": "1.2.0",
   "description": "EliteHostX - Secure Minecraft Hosting Platform",
   "main": "server.js",
   "scripts": {
@@ -11,6 +10,7 @@
     "node": ">=20"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "connect-pg-simple": "^10.0.0",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",

@@ -1,4 +1,3 @@
-
 const authScreen = document.getElementById("authScreen");
 const dashboard = document.getElementById("appDashboard");
 const modal = document.getElementById("serverModal");
@@ -7,51 +6,166 @@ const serverContainer = document.getElementById("serverContainer");
 
 let currentUser = null;
 
+function showMessage(message, type = "error") {
+    const box = document.getElementById("authMessage");
+
+    if (!box) {
+        alert(message);
+        return;
+    }
+
+    box.textContent = message;
+    box.className = `auth-message ${type}`;
+    box.classList.remove("hidden");
+}
+
+function clearMessage() {
+    const box = document.getElementById("authMessage");
+
+    if (box) {
+        box.textContent = "";
+        box.className = "auth-message hidden";
+    }
+}
+
 function showLogin() {
     currentUser = null;
-
     dashboard.classList.add("hidden");
     authScreen.classList.remove("hidden");
 }
 
 function showDashboard(user) {
     currentUser = user;
-
     authScreen.classList.add("hidden");
     dashboard.classList.remove("hidden");
 
     const avatar = document.getElementById("profileAvatar");
 
     if (avatar) {
-        avatar.textContent =
-            user.name?.charAt(0).toUpperCase() || "U";
+        avatar.textContent = user.name?.charAt(0).toUpperCase() || "U";
         avatar.title = user.name || "User";
+    }
+
+    const accountName = document.getElementById("accountName");
+
+    if (accountName) {
+        accountName.textContent = user.name || user.email || "Usuario";
     }
 
     renderServers();
 }
 
 function getStorageKey() {
-    if (!currentUser) {
-        return null;
-    }
-
-    return `elitehostx_servers_${currentUser.id}`;
+    return currentUser ? `elitehostx_servers_${currentUser.id}` : null;
 }
 
+function setAuthMode(mode) {
+    clearMessage();
 
-/*
-|--------------------------------------------------------------------------
-| AUTHENTICATION
-|--------------------------------------------------------------------------
-*/
+    const loginForm = document.getElementById("loginForm");
+    const registerForm = document.getElementById("registerForm");
+    const loginTab = document.getElementById("loginTab");
+    const registerTab = document.getElementById("registerTab");
 
-document.getElementById("googleLogin").addEventListener("click", () => {
-    window.location.assign("/auth/google");
+    const isRegister = mode === "register";
+
+    loginForm.classList.toggle("hidden", isRegister);
+    registerForm.classList.toggle("hidden", !isRegister);
+    loginTab.classList.toggle("active", !isRegister);
+    registerTab.classList.toggle("active", isRegister);
+}
+
+document.getElementById("loginTab").addEventListener("click", () => {
+    setAuthMode("login");
 });
 
-document.getElementById("discordLogin").addEventListener("click", () => {
-    window.location.assign("/auth/discord");
+document.getElementById("registerTab").addEventListener("click", () => {
+    setAuthMode("register");
+});
+
+document.getElementById("loginForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    clearMessage();
+
+    const button = document.getElementById("loginSubmit");
+
+    button.disabled = true;
+    button.textContent = "INICIANDO SESIÓN...";
+
+    try {
+        const response = await fetch("/api/login", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({
+                email: document.getElementById("loginEmail").value,
+                password: document.getElementById("loginPassword").value
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "No se pudo iniciar sesión.");
+        }
+
+        showDashboard(data.user);
+    } catch (error) {
+        showMessage(error.message);
+    } finally {
+        button.disabled = false;
+        button.textContent = "SIGN IN";
+    }
+});
+
+document.getElementById("registerForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    clearMessage();
+
+    const password = document.getElementById("registerPassword").value;
+    const confirmation = document.getElementById("registerPasswordConfirm").value;
+
+    if (password !== confirmation) {
+        showMessage("Las contraseñas no coinciden.");
+        return;
+    }
+
+    const button = document.getElementById("registerSubmit");
+
+    button.disabled = true;
+    button.textContent = "CREANDO CUENTA...";
+
+    try {
+        const response = await fetch("/api/register", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({
+                name: document.getElementById("registerName").value,
+                email: document.getElementById("registerEmail").value,
+                password
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "No se pudo crear la cuenta.");
+        }
+
+        showDashboard(data.user);
+    } catch (error) {
+        showMessage(error.message);
+    } finally {
+        button.disabled = false;
+        button.textContent = "CREATE ACCOUNT";
+    }
 });
 
 document.getElementById("logoutButton").addEventListener("click", async () => {
@@ -71,18 +185,16 @@ document.getElementById("logoutButton").addEventListener("click", async () => {
 
         closeModal();
         showLogin();
-
+        setAuthMode("login");
     } catch (error) {
         console.error("Logout error:", error);
-        alert("No se pudo cerrar la sesión. Inténtalo de nuevo.");
+        alert(error.message || "No se pudo cerrar la sesión.");
     }
 });
-
 
 async function checkSession() {
     try {
         const response = await fetch("/api/me", {
-            method: "GET",
             credentials: "same-origin",
             headers: {
                 "Accept": "application/json"
@@ -97,61 +209,36 @@ async function checkSession() {
 
         const data = await response.json();
 
-        if (!data.authenticated || !data.user) {
+        if (data.authenticated && data.user) {
+            showDashboard(data.user);
+        } else {
             showLogin();
-            return;
         }
-
-        showDashboard(data.user);
-
     } catch (error) {
         console.error("Session check error:", error);
         showLogin();
     }
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| AUTHENTICATION MESSAGES
-|--------------------------------------------------------------------------
-*/
-
 function checkAuthMessages() {
     const params = new URLSearchParams(window.location.search);
-    const authStatus = params.get("auth");
+    const status = params.get("auth");
 
-    if (authStatus === "failed") {
-        alert("No se pudo iniciar sesión. Inténtalo nuevamente.");
+    if (status === "failed") {
+        showMessage("No se pudo iniciar sesión con el proveedor.");
     }
 
-    if (authStatus === "unavailable") {
-        alert(
-            "El inicio de sesión todavía no está configurado. " +
-            "Estamos preparando EliteHostX."
-        );
+    if (status === "unavailable") {
+        showMessage("Ese método de acceso todavía no está configurado.");
     }
 
-    if (authStatus) {
-        window.history.replaceState(
-            {},
-            document.title,
-            window.location.pathname
-        );
+    if (status) {
+        history.replaceState({}, document.title, location.pathname);
     }
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| SERVER MODAL
-|--------------------------------------------------------------------------
-*/
-
 function openModal(event) {
-    if (event) {
-        event.preventDefault();
-    }
+    if (event) event.preventDefault();
 
     if (!currentUser) {
         showLogin();
@@ -165,21 +252,18 @@ function closeModal() {
     modal.classList.add("hidden");
 }
 
-const createButtons = [
+[
     document.getElementById("createButton"),
     document.getElementById("emptyCreate"),
     document.getElementById("heroCreate"),
     document.getElementById("sidebarCreate")
-];
-
-createButtons.forEach(button => {
+].forEach(button => {
     if (button) {
         button.addEventListener("click", openModal);
     }
 });
 
-document.getElementById("closeModal")
-    .addEventListener("click", closeModal);
+document.getElementById("closeModal").addEventListener("click", closeModal);
 
 modal.addEventListener("click", event => {
     if (event.target === modal) {
@@ -193,23 +277,10 @@ document.addEventListener("keydown", event => {
     }
 });
 
-
-/*
-|--------------------------------------------------------------------------
-| LOCAL DEMO SERVER CONFIGURATIONS
-|--------------------------------------------------------------------------
-|
-| Estas configuraciones todavía no crean servidores Minecraft reales.
-| Se guardan localmente y se separan por ID de usuario.
-|
-*/
-
 function getServers() {
     const key = getStorageKey();
 
-    if (!key) {
-        return [];
-    }
+    if (!key) return [];
 
     try {
         return JSON.parse(localStorage.getItem(key) || "[]");
@@ -222,26 +293,16 @@ function getServers() {
 function saveServers(servers) {
     const key = getStorageKey();
 
-    if (!key) {
-        return;
+    if (key) {
+        localStorage.setItem(key, JSON.stringify(servers));
     }
-
-    localStorage.setItem(key, JSON.stringify(servers));
 }
-
-
-/*
-|--------------------------------------------------------------------------
-| CREATE SERVER CONFIGURATION
-|--------------------------------------------------------------------------
-*/
 
 serverForm.addEventListener("submit", event => {
     event.preventDefault();
 
     if (!currentUser) {
-        showLogin();
-        return;
+        return showLogin();
     }
 
     const name = document.getElementById("serverName").value.trim();
@@ -249,55 +310,36 @@ serverForm.addEventListener("submit", event => {
     const version = document.getElementById("serverVersion").value;
     const ram = Number(document.getElementById("serverRam").value);
 
-    if (!name) {
-        alert("Please enter a server name.");
+    if (!name || !Number.isFinite(ram) || ram <= 0) {
+        alert("Revisa el nombre y la memoria seleccionada.");
         return;
     }
 
-    if (!Number.isFinite(ram) || ram <= 0) {
-        alert("Invalid RAM allocation.");
-        return;
-    }
+    const servers = getServers();
 
-    const server = {
+    servers.push({
         id: crypto.randomUUID(),
         name,
         software,
         version,
         ram,
         createdAt: new Date().toISOString()
-    };
+    });
 
-    const servers = getServers();
-
-    servers.push(server);
     saveServers(servers);
-
     renderServers();
     closeModal();
     serverForm.reset();
 });
 
-
-/*
-|--------------------------------------------------------------------------
-| RENDER SERVERS
-|--------------------------------------------------------------------------
-*/
-
 function renderServers() {
-    if (!currentUser) {
-        return;
-    }
+    if (!currentUser) return;
 
     const servers = getServers();
 
     serverContainer.innerHTML = "";
 
-    document.getElementById("totalServers").textContent =
-        servers.length;
-
-    // Todavía no hay instancias reales conectadas.
+    document.getElementById("totalServers").textContent = servers.length;
     document.getElementById("activeServers").textContent = "0";
 
     const totalRam = servers.reduce(
@@ -305,25 +347,19 @@ function renderServers() {
         0
     );
 
-    document.getElementById("totalRam").textContent =
-        `${totalRam} GB`;
+    document.getElementById("totalRam").textContent = `${totalRam} GB`;
 
     if (servers.length === 0) {
         serverContainer.innerHTML = `
             <div class="empty-icon">▣</div>
             <h2>No servers yet</h2>
-            <p>
-                You haven't created any Minecraft servers.
-                Start by creating your first one.
-            </p>
+            <p>You haven't created any Minecraft servers. Start by creating your first one.</p>
             <button class="primary-button" id="emptyCreate">
                 CREATE MY FIRST SERVER
             </button>
         `;
 
-        document.getElementById("emptyCreate")
-            .addEventListener("click", openModal);
-
+        document.getElementById("emptyCreate").addEventListener("click", openModal);
         return;
     }
 
@@ -351,13 +387,6 @@ function renderServers() {
     });
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| API STATUS
-|--------------------------------------------------------------------------
-*/
-
 async function loadStatus() {
     try {
         const response = await fetch("/api/status", {
@@ -365,25 +394,22 @@ async function loadStatus() {
         });
 
         if (!response.ok) {
-            throw new Error("API returned " + response.status);
+            throw new Error(`API ${response.status}`);
         }
 
         const data = await response.json();
 
-        console.log("Connected to " + data.name);
-        console.log("Status: " + data.status);
+        console.log("EliteHostX:", data);
 
+        if (data.registration !== "enabled") {
+            showMessage(
+                "El servicio de cuentas todavía no está disponible. Inténtalo más tarde."
+            );
+        }
     } catch (error) {
         console.error("Connection error:", error);
     }
 }
-
-
-/*
-|--------------------------------------------------------------------------
-| INITIALIZATION
-|--------------------------------------------------------------------------
-*/
 
 checkAuthMessages();
 showLogin();
