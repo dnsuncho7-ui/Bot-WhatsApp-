@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,516 +7,193 @@
     <title>EliteHostX | Premium Game Hosting</title>
     <meta name="description" content="EliteHostX - Premium Minecraft Server Hosting">
     <meta name="theme-color" content="#080d17">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="style.css">
-
     <style>
-        .auth-tabs {
-            display: flex;
-            gap: 8px;
-            margin: 22px 0 18px;
-        }
+        .auth-tabs{display:flex;gap:8px;margin:22px 0 18px}
+        .auth-tab{flex:1;padding:12px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:rgba(255,255,255,.04);color:inherit;font:inherit;font-weight:700;cursor:pointer}
+        .auth-tab.active{background:#2563eb;border-color:#2563eb;color:#fff}
+        .auth-form{display:grid;gap:10px;text-align:left}
+        .auth-form label{font-size:13px;font-weight:700;color:#cbd5e1}
+        .auth-form input{box-sizing:border-box;width:100%;padding:13px 14px;border:1px solid rgba(255,255,255,.16);border-radius:9px;background:#0d1728;color:#fff;font:inherit;outline:none}
+        .auth-form input:focus{border-color:#60a5fa}
+        .auth-submit{width:100%;padding:14px;border:0;border-radius:9px;background:#2563eb;color:#fff;font-weight:800;cursor:pointer;margin-top:8px}
+        .auth-submit:disabled{opacity:.6;cursor:wait}
+        .auth-message{margin:12px 0;padding:11px 13px;border-radius:9px;background:rgba(220,38,38,.14);border:1px solid rgba(248,113,113,.35);color:#fecaca;font-size:13px;text-align:left}
+        .auth-hint{font-size:12px;color:#94a3b8;line-height:1.5;margin:4px 0}
+        .hidden{display:none!important}
 
-        .auth-tab {
-            flex: 1;
-            padding: 12px;
-            border: 1px solid rgba(255,255,255,.12);
-            border-radius: 10px;
-            background: rgba(255,255,255,.04);
-            color: inherit;
-            font: inherit;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .auth-tab.active {
-            background: #2563eb;
-            border-color: #2563eb;
-            color: #fff;
-        }
-
-        .auth-form {
-            display: grid;
-            gap: 10px;
-            text-align: left;
-        }
-
-        .auth-form label {
-            font-size: 13px;
-            font-weight: 700;
-            color: #cbd5e1;
-        }
-
-        .auth-form input {
-            box-sizing: border-box;
-            width: 100%;
-            padding: 13px 14px;
-            border: 1px solid rgba(255,255,255,.16);
-            border-radius: 9px;
-            background: #0d1728;
-            color: #fff;
-            font: inherit;
-            outline: none;
-        }
-
-        .auth-form input:focus {
-            border-color: #60a5fa;
-        }
-
-        .auth-submit {
-            width: 100%;
-            padding: 14px;
-            border: 0;
-            border-radius: 9px;
-            background: #2563eb;
-            color: #fff;
-            font-weight: 800;
-            cursor: pointer;
-            margin-top: 8px;
-        }
-
-        .auth-submit:disabled {
-            opacity: .6;
-            cursor: wait;
-        }
-
-        .auth-message {
-            margin: 12px 0;
-            padding: 11px 13px;
-            border-radius: 9px;
-            background: rgba(220,38,38,.14);
-            border: 1px solid rgba(248,113,113,.35);
-            color: #fecaca;
-            font-size: 13px;
-            text-align: left;
-        }
-
-        .auth-hint {
-            font-size: 12px;
-            color: #94a3b8;
-            line-height: 1.5;
-            margin: 4px 0;
-        }
-
-        .hidden {
-            display: none !important;
-        }
+        .plans-section{margin:30px 0}
+        .plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:18px}
+        .plan-card{position:relative;overflow:hidden;padding:20px;border:1px solid rgba(148,163,184,.2);border-radius:16px;background:linear-gradient(145deg,rgba(20,33,55,.96),rgba(10,18,32,.98));box-shadow:0 12px 30px rgba(0,0,0,.18)}
+        .plan-card:after{content:"";position:absolute;width:130px;height:130px;right:-55px;top:-55px;border-radius:50%;background:var(--plan-glow);filter:blur(35px);opacity:.22;pointer-events:none}
+        .plan-art{display:flex;align-items:center;justify-content:center;height:116px;margin:-4px 0 12px}
+        .plan-art img{width:112px;height:112px;object-fit:contain;filter:drop-shadow(0 12px 18px rgba(0,0,0,.35))}
+        .plan-card h3{margin:5px 0 12px;font-size:18px;letter-spacing:1.2px}
+        .plan-ram{font-size:27px;font-weight:900;margin:0 0 10px;color:var(--plan-color)}
+        .plan-specs{display:flex;flex-wrap:wrap;gap:7px}
+        .plan-specs span{font-size:12px;padding:7px 9px;border-radius:8px;background:rgba(148,163,184,.1);color:#cbd5e1}
+        .plan-label{font-size:10px;letter-spacing:1.5px;color:#94a3b8;font-weight:800}
+        .plan-choice{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:10px 0 18px}
+        .plan-option{position:relative;display:block;border:1px solid rgba(148,163,184,.25);border-radius:12px;padding:12px;background:rgba(15,23,42,.65);cursor:pointer}
+        .plan-option:has(input:checked){border-color:#60a5fa;box-shadow:0 0 0 2px rgba(96,165,250,.18)}
+        .plan-option input{position:absolute;opacity:0;pointer-events:none}
+        .plan-option img{display:block;width:58px;height:58px;object-fit:contain;margin:0 auto 6px}
+        .plan-option strong,.plan-option small{display:block;text-align:center}
+        .plan-option small{color:#94a3b8;margin-top:4px}
+        .section-anchor{scroll-margin-top:24px}
+        @media(max-width:600px){.plan-art{height:90px}.plan-art img{width:90px;height:90px}}
     </style>
 </head>
-
 <body>
-
     <section id="authScreen" class="auth-screen">
         <div class="auth-card">
-
             <div class="auth-brand">
                 <div class="brand-icon">⚡</div>
                 <h1>EliteHost<span>X</span></h1>
                 <p>PREMIUM GAME HOSTING</p>
             </div>
-
             <div class="auth-heading">
                 <h2>Welcome to EliteHostX</h2>
                 <p>Sign in or create an account to manage your Minecraft servers.</p>
             </div>
 
             <div class="auth-tabs">
-                <button type="button" id="loginTab" class="auth-tab active">
-                    SIGN IN
-                </button>
-
-                <button type="button" id="registerTab" class="auth-tab">
-                    CREATE ACCOUNT
-                </button>
+                <button type="button" id="loginTab" class="auth-tab active">SIGN IN</button>
+                <button type="button" id="registerTab" class="auth-tab">CREATE ACCOUNT</button>
             </div>
 
             <div id="authMessage" class="auth-message hidden" role="alert"></div>
 
             <form id="loginForm" class="auth-form">
-
                 <label for="loginEmail">Email</label>
-                <input
-                    id="loginEmail"
-                    type="email"
-                    autocomplete="email"
-                    maxlength="320"
-                    placeholder="you@example.com"
-                    required
-                >
-
+                <input id="loginEmail" type="email" autocomplete="email" maxlength="320" placeholder="you@example.com" required>
                 <label for="loginPassword">Password</label>
-                <input
-                    id="loginPassword"
-                    type="password"
-                    autocomplete="current-password"
-                    maxlength="72"
-                    required
-                >
-
-                <button id="loginSubmit" type="submit" class="auth-submit">
-                    SIGN IN
-                </button>
-
+                <input id="loginPassword" type="password" autocomplete="current-password" maxlength="72" required>
+                <button id="loginSubmit" type="submit" class="auth-submit">SIGN IN</button>
             </form>
 
             <form id="registerForm" class="auth-form hidden">
-
                 <label for="registerName">Display name</label>
-                <input
-                    id="registerName"
-                    type="text"
-                    autocomplete="name"
-                    minlength="2"
-                    maxlength="60"
-                    placeholder="Your name"
-                    required
-                >
-
+                <input id="registerName" type="text" autocomplete="name" minlength="2" maxlength="60" placeholder="Your name" required>
                 <label for="registerEmail">Email</label>
-                <input
-                    id="registerEmail"
-                    type="email"
-                    autocomplete="email"
-                    maxlength="320"
-                    placeholder="you@example.com"
-                    required
-                >
-
+                <input id="registerEmail" type="email" autocomplete="email" maxlength="320" placeholder="you@example.com" required>
                 <label for="registerPassword">Password</label>
-                <input
-                    id="registerPassword"
-                    type="password"
-                    autocomplete="new-password"
-                    minlength="12"
-                    maxlength="72"
-                    required
-                >
-
+                <input id="registerPassword" type="password" autocomplete="new-password" minlength="12" maxlength="72" required>
                 <label for="registerPasswordConfirm">Confirm password</label>
-                <input
-                    id="registerPasswordConfirm"
-                    type="password"
-                    autocomplete="new-password"
-                    minlength="12"
-                    maxlength="72"
-                    required
-                >
-
-                <p class="auth-hint">
-                    Use at least 12 characters. Do not reuse a password from another site.
-                </p>
-
-                <button id="registerSubmit" type="submit" class="auth-submit">
-                    CREATE ACCOUNT
-                </button>
-
+                <input id="registerPasswordConfirm" type="password" autocomplete="new-password" minlength="12" maxlength="72" required>
+                <p class="auth-hint">Use at least 12 characters. Do not reuse a password from another site.</p>
+                <button id="registerSubmit" type="submit" class="auth-submit">CREATE ACCOUNT</button>
             </form>
 
-            <div class="auth-divider">
-                <span>SECURE ACCOUNT ACCESS</span>
-            </div>
-
-            <p class="auth-terms">
-                By continuing, you agree to the
-                <a href="#terms">Terms of Service</a>
-                and
-                <a href="#privacy">Privacy Policy</a>.
-            </p>
-
-            <div class="auth-footer">
-                © 2026 EliteHostX. All rights reserved.
-            </div>
-
+            <div class="auth-divider"><span>SECURE ACCOUNT ACCESS</span></div>
+            <p class="auth-terms">By continuing, you agree to the <a href="#terms">Terms of Service</a> and <a href="#privacy">Privacy Policy</a>.</p>
+            <div class="auth-footer">© 2026 EliteHostX. All rights reserved.</div>
         </div>
     </section>
 
     <div id="appDashboard" class="hidden">
-
         <aside class="sidebar">
-
             <div class="brand">
-                <div class="brand-icon">
-                    <span>⚡</span>
-                </div>
-
-                <div>
-                    <h2>EliteHost<span>X</span></h2>
-                    <p class="subtitle">PREMIUM GAME HOSTING</p>
-                </div>
+                <div class="brand-icon"><span>⚡</span></div>
+                <div><h2>EliteHost<span>X</span></h2><p class="subtitle">PREMIUM GAME HOSTING</p></div>
             </div>
-
             <div class="menu-section">
                 <p class="menu-title">MAIN MENU</p>
-
                 <nav class="menu">
-                    <a class="active" href="#">
-                        <span>▦</span> Dashboard
-                    </a>
-
-                    <a href="#servers">
-                        <span>▣</span> My Servers
-                    </a>
-
-                    <a href="#servers" id="sidebarCreate">
-                        <span>＋</span> Create Server
-                    </a>
+                    <a class="active" href="#"><span>▦</span> Dashboard</a>
+                    <a href="#servers"><span>▣</span> My Servers</a>
+                    <a href="#plans"><span>♛</span> Plans</a>
+                    <a href="#servers" id="sidebarCreate"><span>＋</span> Create Server</a>
                 </nav>
             </div>
-
             <div class="menu-section">
                 <p class="menu-title">MANAGEMENT</p>
-
                 <nav class="menu">
-                    <a href="#servers">
-                        <span>▤</span> File Manager
-                    </a>
-
-                    <a href="#servers">
-                        <span>⌘</span> Console
-                    </a>
-
-                    <a href="#settings">
-                        <span>⚙</span> Settings
-                    </a>
+                    <a href="#servers"><span>▤</span> File Manager</a>
+                    <a href="#servers"><span>⌘</span> Console</a>
+                    <a href="#settings"><span>⚙</span> Settings</a>
                 </nav>
             </div>
-
             <div class="sidebar-bottom">
-
-                <div class="support-box">
-                    <span class="support-icon">✦</span>
-                    <strong>Need help?</strong>
-                    <p>Our support team is here for you.</p>
-                </div>
-
-                <div class="version">
-                    ELITEHOSTX PANEL · V1.2.0
-                </div>
-
+                <div class="support-box"><span class="support-icon">✦</span><strong>Need help?</strong><p>Our support team is here for you.</p></div>
+                <div class="version">ELITEHOSTX PANEL · V1.2.0</div>
             </div>
-
         </aside>
 
         <main class="main-content">
-
             <header class="topbar">
-
-                <div>
-                    <h1>Dashboard</h1>
-                    <p>Welcome back to EliteHostX.</p>
-                </div>
-
+                <div><h1>Dashboard</h1><p>Welcome back to EliteHostX.</p></div>
                 <div class="topbar-right">
-
-                    <div class="system-status">
-                        <span class="status-dot"></span>
-                        SYSTEM ONLINE
-                    </div>
-
-                    <div class="profile" id="profileAvatar">
-                        E
-                    </div>
-
+                    <div class="system-status"><span class="status-dot"></span>SYSTEM ONLINE</div>
+                    <div class="profile" id="profileAvatar">E</div>
                     <span id="accountName" class="account-name"></span>
-
-                    <button
-                        type="button"
-                        id="logoutButton"
-                        class="logout-button"
-                    >
-                        LOG OUT
-                    </button>
-
+                    <button type="button" id="logoutButton" class="logout-button">LOG OUT</button>
                 </div>
-
             </header>
 
             <section class="welcome">
-
                 <div class="welcome-content">
-
-                    <span class="tag">
-                        ⚡ PREMIUM MINECRAFT HOSTING
-                    </span>
-
-                    <h2>
-                        Take control of<br>
-                        your <span>game world.</span>
-                    </h2>
-
-                    <p>
-                        Powerful servers. Unlimited possibilities.
-                        Everything you need in one place.
-                    </p>
-
-                    <button class="primary-button" id="heroCreate">
-                        + CREATE YOUR SERVER
-                    </button>
-
+                    <span class="tag">⚡ PREMIUM MINECRAFT HOSTING</span>
+                    <h2>Take control of<br>your <span>game world.</span></h2>
+                    <p>Powerful servers. Unlimited possibilities. Everything you need in one place.</p>
+                    <button class="primary-button" id="heroCreate">+ CREATE YOUR SERVER</button>
                 </div>
+                <div class="hero-decoration"><div class="hero-circle"><span>⚡</span></div></div>
+            </section>
 
-                <div class="hero-decoration">
-                    <div class="hero-circle">
-                        <span>⚡</span>
-                    </div>
-                </div>
-
+            <section class="plans-section section-anchor" id="plans">
+                <div class="section-heading"><h2>Hosting Plans</h2><p>Choose the power that fits your Minecraft world.</p></div>
+                <div class="plans-grid" id="plansGrid"></div>
             </section>
 
             <section class="statistics-section">
-
-                <div class="section-heading">
-                    <h2>Overview</h2>
-                    <p>Your hosting statistics</p>
-                </div>
-
+                <div class="section-heading"><h2>Overview</h2><p>Your hosting statistics</p></div>
                 <div class="stats">
-
-                    <div class="stat-card">
-                        <div class="stat-icon">▣</div>
-                        <span>Total Servers</span>
-                        <h2 id="totalServers">0</h2>
-                        <small>Registered servers</small>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon">◉</div>
-                        <span>Active Servers</span>
-                        <h2 id="activeServers">0</h2>
-                        <small>Currently running</small>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon">▤</div>
-                        <span>Allocated RAM</span>
-                        <h2 id="totalRam">0 GB</h2>
-                        <small>Total configured memory</small>
-                    </div>
-
+                    <div class="stat-card"><div class="stat-icon">▣</div><span>Total Servers</span><h2 id="totalServers">0</h2><small>Registered servers</small></div>
+                    <div class="stat-card"><div class="stat-icon">◉</div><span>Active Servers</span><h2 id="activeServers">0</h2><small>Currently running</small></div>
+                    <div class="stat-card"><div class="stat-icon">▤</div><span>Allocated RAM</span><h2 id="totalRam">0 GB</h2><small>Total configured memory</small></div>
                 </div>
-
             </section>
 
             <section class="servers-section" id="servers">
-
                 <div class="section-header">
-
-                    <div>
-                        <h2>My Servers</h2>
-                        <p>Manage your Minecraft infrastructure.</p>
-                    </div>
-
-                    <button class="primary-button" id="createButton">
-                        + CREATE SERVER
-                    </button>
-
+                    <div><h2>My Servers</h2><p>Manage your Minecraft infrastructure.</p></div>
+                    <button class="primary-button" id="createButton">+ CREATE SERVER</button>
                 </div>
-
                 <div class="empty" id="serverContainer">
-
-                    <div class="empty-icon">▣</div>
-
-                    <h2>No servers yet</h2>
-
-                    <p>
-                        You haven't created any Minecraft servers.
-                        Start by creating your first one.
-                    </p>
-
-                    <button class="primary-button" id="emptyCreate">
-                        CREATE MY FIRST SERVER
-                    </button>
-
+                    <div class="empty-icon">▣</div><h2>No servers yet</h2>
+                    <p>You haven't created any Minecraft servers. Start by creating your first one.</p>
+                    <button class="primary-button" id="emptyCreate">CREATE MY FIRST SERVER</button>
                 </div>
-
             </section>
 
-            <footer>
-                <div class="footer-brand">⚡ EliteHostX</div>
-                <p>© 2026 EliteHostX. All rights reserved.</p>
-                <p>POWERED BY ELITEHOSTX</p>
-            </footer>
-
+            <footer><div class="footer-brand">⚡ EliteHostX</div><p>© 2026 EliteHostX. All rights reserved.</p><p>POWERED BY ELITEHOSTX</p></footer>
         </main>
-
     </div>
 
     <div id="serverModal" class="modal hidden">
-
         <div class="modal-content">
-
             <div class="modal-header">
-
-                <div>
-                    <span class="tag">ELITEHOSTX PANEL</span>
-                    <h2>Create Minecraft Server</h2>
-                    <p>Configure your new server.</p>
-                </div>
-
-                <button
-                    type="button"
-                    id="closeModal"
-                    class="close-button"
-                >
-                    ✕
-                </button>
-
+                <div><span class="tag">ELITEHOSTX PANEL</span><h2>Create Minecraft Server</h2><p>Configure your new server.</p></div>
+                <button type="button" id="closeModal" class="close-button">✕</button>
             </div>
-
             <form id="serverForm">
-
                 <label for="serverName">Server Name</label>
-                <input
-                    id="serverName"
-                    type="text"
-                    placeholder="My Minecraft Server"
-                    maxlength="40"
-                    required
-                >
-
+                <input id="serverName" type="text" placeholder="My Minecraft Server" maxlength="40" required>
                 <label for="serverSoftware">Server Software</label>
-                <select id="serverSoftware">
-                    <option value="Paper">Paper</option>
-                    <option value="Purpur">Purpur</option>
-                    <option value="Vanilla">Vanilla</option>
-                    <option value="Spigot">Spigot</option>
-                </select>
-
+                <select id="serverSoftware"><option value="Paper">Paper</option><option value="Purpur">Purpur</option><option value="Vanilla">Vanilla</option><option value="Spigot">Spigot</option></select>
                 <label for="serverVersion">Minecraft Version</label>
-                <select id="serverVersion">
-                    <option value="1.21.11">1.21.11</option>
-                    <option value="1.21.10">1.21.10</option>
-                    <option value="1.21.8">1.21.8</option>
-                </select>
-
-                <label for="serverRam">RAM Allocation</label>
-                <select id="serverRam">
-                    <option value="2">2 GB</option>
-                    <option value="4">4 GB</option>
-                    <option value="6">6 GB</option>
-                    <option value="8">8 GB</option>
-                </select>
-
-                <button type="submit" class="create-submit">
-                    ⚡ CREATE SERVER
-                </button>
-
+                <select id="serverVersion"><option value="1.21.11">1.21.11</option><option value="1.21.10">1.21.10</option><option value="1.21.8">1.21.8</option></select>
+                <label>Choose a hosting plan</label>
+                <div class="plan-choice" id="planChoice"></div>
+                <button type="submit" class="create-submit">⚡ CREATE SERVER</button>
             </form>
-
-            <div class="modal-note">
-                ⓘ Demo mode: configurations are saved in this browser.
-                Real Minecraft instances require a server engine.
-            </div>
-
+            <div class="modal-note">ⓘ Demo mode: configurations are saved in this browser. Real Minecraft instances require a server engine.</div>
         </div>
-
     </div>
-
     <script src="app.js"></script>
-
 </body>
 </html>

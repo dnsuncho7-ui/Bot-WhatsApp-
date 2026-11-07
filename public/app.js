@@ -1,3 +1,4 @@
+
 const authScreen = document.getElementById("authScreen");
 const dashboard = document.getElementById("appDashboard");
 const modal = document.getElementById("serverModal");
@@ -6,9 +7,73 @@ const serverContainer = document.getElementById("serverContainer");
 
 let currentUser = null;
 
+const HOSTING_PLANS = [
+    { id: "corona", name: "CORONA", ram: 8, cpu: 4, disk: 80, color: "#e7bd45", glow: "#e7bd45", gem: "crown" },
+    { id: "esmeralda", name: "ESMERALDA", ram: 12, cpu: 6, disk: 120, color: "#35d39a", glow: "#20b879", gem: "emerald" },
+    { id: "diamante", name: "DIAMANTE", ram: 16, cpu: 8, disk: 160, color: "#65d5ff", glow: "#55c9f2", gem: "diamond" },
+    { id: "netherite", name: "NETHERITE", ram: 24, cpu: 10, disk: 240, color: "#c4c8d2", glow: "#8b929f", gem: "netherite" },
+    { id: "rubi", name: "RUBÍ", ram: 32, cpu: 12, disk: 320, color: "#ff718b", glow: "#e85d75", gem: "ruby" },
+    { id: "amatista", name: "AMATISTA", ram: 48, cpu: 16, disk: 480, color: "#c49aff", glow: "#a879ed", gem: "amethyst" }
+];
+
+function planImage(plan) {
+    const palettes = {
+        crown: ["#fff2a8", "#d49a19", "#8a5a08"],
+        emerald: ["#a8ffd9", "#18b879", "#07583f"],
+        diamond: ["#e4fbff", "#55c9f2", "#2473b5"],
+        netherite: ["#e2e5eb", "#777f8e", "#343b49"],
+        ruby: ["#ffc0ca", "#e33d61", "#82152f"],
+        amethyst: ["#f0d9ff", "#a879ed", "#56318f"]
+    };
+
+    const [light, mid, dark] = palettes[plan.gem];
+
+    const art = plan.gem === "crown"
+        ? `<path d="M18 35 8 13l20 13 12-20 12 20 20-13-10 22-44 0Z" fill="url(#g)" stroke="${light}" stroke-width="2"/><path d="M20 42h40l-4 12H24Z" fill="${dark}"/><circle cx="40" cy="12" r="4" fill="${light}"/>`
+        : plan.gem === "netherite"
+        ? `<path d="M40 5 67 20 62 53 40 70 18 53 13 20Z" fill="url(#g)" stroke="${light}" stroke-width="2"/><path d="m40 5 0 65M13 20l49 33M67 20 18 53" stroke="${light}" stroke-opacity=".55" stroke-width="2"/>`
+        : `<path d="M40 5 65 25 55 58 40 70 25 58 15 25Z" fill="url(#g)" stroke="${light}" stroke-width="2"/><path d="M40 5 40 70M15 25h50M25 58l15-33 15 33" fill="none" stroke="${light}" stroke-opacity=".65" stroke-width="2"/>`;
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${light}"/><stop offset=".48" stop-color="${mid}"/><stop offset="1" stop-color="${dark}"/></linearGradient></defs><ellipse cx="40" cy="72" rx="24" ry="5" fill="#000" opacity=".25"/>${art}</svg>`;
+
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+function renderPlans() {
+    const grid = document.getElementById("plansGrid");
+    const choices = document.getElementById("planChoice");
+
+    if (grid) {
+        grid.innerHTML = HOSTING_PLANS.map(plan => `
+            <article class="plan-card" style="--plan-color:${plan.color};--plan-glow:${plan.glow}">
+                <div class="plan-art">
+                    <img src="${planImage(plan)}" alt="Imagen del material ${plan.name}" loading="lazy">
+                </div>
+                <span class="plan-label">ELITEHOSTX PLAN</span>
+                <h3>${plan.name}</h3>
+                <p class="plan-ram">${plan.ram} GB RAM</p>
+                <div class="plan-specs">
+                    <span>⚡ ${plan.cpu} CPU</span>
+                    <span>▣ ${plan.disk} GB SSD</span>
+                </div>
+            </article>
+        `).join("");
+    }
+
+    if (choices) {
+        choices.innerHTML = HOSTING_PLANS.map((plan, index) => `
+            <label class="plan-option">
+                <input type="radio" name="hostingPlan" value="${plan.id}" ${index === 0 ? "checked" : ""} required>
+                <img src="${planImage(plan)}" alt="${plan.name}">
+                <strong>${plan.name}</strong>
+                <small>${plan.ram} GB RAM · ${plan.cpu} CPU</small>
+            </label>
+        `).join("");
+    }
+}
+
 function showMessage(message, type = "error") {
     const box = document.getElementById("authMessage");
-
     if (!box) {
         alert(message);
         return;
@@ -52,6 +117,7 @@ function showDashboard(user) {
         accountName.textContent = user.name || user.email || "Usuario";
     }
 
+    renderPlans();
     renderServers();
 }
 
@@ -75,20 +141,14 @@ function setAuthMode(mode) {
     registerTab.classList.toggle("active", isRegister);
 }
 
-document.getElementById("loginTab").addEventListener("click", () => {
-    setAuthMode("login");
-});
-
-document.getElementById("registerTab").addEventListener("click", () => {
-    setAuthMode("register");
-});
+document.getElementById("loginTab").addEventListener("click", () => setAuthMode("login"));
+document.getElementById("registerTab").addEventListener("click", () => setAuthMode("register"));
 
 document.getElementById("loginForm").addEventListener("submit", async event => {
     event.preventDefault();
     clearMessage();
 
     const button = document.getElementById("loginSubmit");
-
     button.disabled = true;
     button.textContent = "INICIANDO SESIÓN...";
 
@@ -134,7 +194,6 @@ document.getElementById("registerForm").addEventListener("submit", async event =
     }
 
     const button = document.getElementById("registerSubmit");
-
     button.disabled = true;
     button.textContent = "CREANDO CUENTA...";
 
@@ -238,7 +297,9 @@ function checkAuthMessages() {
 }
 
 function openModal(event) {
-    if (event) event.preventDefault();
+    if (event) {
+        event.preventDefault();
+    }
 
     if (!currentUser) {
         showLogin();
@@ -280,7 +341,9 @@ document.addEventListener("keydown", event => {
 function getServers() {
     const key = getStorageKey();
 
-    if (!key) return [];
+    if (!key) {
+        return [];
+    }
 
     try {
         return JSON.parse(localStorage.getItem(key) || "[]");
@@ -308,10 +371,17 @@ serverForm.addEventListener("submit", event => {
     const name = document.getElementById("serverName").value.trim();
     const software = document.getElementById("serverSoftware").value;
     const version = document.getElementById("serverVersion").value;
-    const ram = Number(document.getElementById("serverRam").value);
 
-    if (!name || !Number.isFinite(ram) || ram <= 0) {
-        alert("Revisa el nombre y la memoria seleccionada.");
+    const selectedPlanId = document.querySelector(
+        'input[name="hostingPlan"]:checked'
+    )?.value;
+
+    const selectedPlan = HOSTING_PLANS.find(
+        plan => plan.id === selectedPlanId
+    );
+
+    if (!name || !selectedPlan) {
+        alert("Selecciona un plan y escribe el nombre del servidor.");
         return;
     }
 
@@ -322,7 +392,11 @@ serverForm.addEventListener("submit", event => {
         name,
         software,
         version,
-        ram,
+        planId: selectedPlan.id,
+        planName: selectedPlan.name,
+        ram: selectedPlan.ram,
+        cpu: selectedPlan.cpu,
+        disk: selectedPlan.disk,
         createdAt: new Date().toISOString()
     });
 
@@ -333,10 +407,11 @@ serverForm.addEventListener("submit", event => {
 });
 
 function renderServers() {
-    if (!currentUser) return;
+    if (!currentUser) {
+        return;
+    }
 
     const servers = getServers();
-
     serverContainer.innerHTML = "";
 
     document.getElementById("totalServers").textContent = servers.length;
@@ -354,12 +429,14 @@ function renderServers() {
             <div class="empty-icon">▣</div>
             <h2>No servers yet</h2>
             <p>You haven't created any Minecraft servers. Start by creating your first one.</p>
-            <button class="primary-button" id="emptyCreate">
-                CREATE MY FIRST SERVER
-            </button>
+            <button class="primary-button" id="emptyCreate">CREATE MY FIRST SERVER</button>
         `;
 
-        document.getElementById("emptyCreate").addEventListener("click", openModal);
+        document.getElementById("emptyCreate").addEventListener(
+            "click",
+            openModal
+        );
+
         return;
     }
 
@@ -374,7 +451,9 @@ function renderServers() {
 
         const details = document.createElement("p");
         details.textContent =
-            `${server.software} · Minecraft ${server.version} · ${server.ram} GB RAM`;
+            `${server.software} · Minecraft ${server.version} · ` +
+            `${server.planName || "PLAN"} · ${server.ram} GB RAM · ` +
+            `${server.cpu || "—"} CPU · ${server.disk || "—"} GB SSD`;
 
         const status = document.createElement("span");
         status.className = "server-status";
@@ -411,6 +490,7 @@ async function loadStatus() {
     }
 }
 
+renderPlans();
 checkAuthMessages();
 showLogin();
 loadStatus();
